@@ -1,0 +1,29 @@
+
+
+SELECT ID,MAIL, CONVERT(varchar, MAIL), len(mail), len(CONVERT(varchar, MAIL))
+FROM   USERS_TISSOT_EMAILS with (nolock)
+WHERE  MAIL <> REPLACE(MAIL + NCHAR(65533)
+COLLATE Latin1_General_BIN, NCHAR(65533) COLLATE Latin1_General_BIN, '')
+
+
+
+DECLARE @nstring NVARCHAR(100)
+SET @nstring =(select MAIL FROM USERS_TISSOT_EMAILS WITH (nolock) WHERE ID=310148)
+DECLARE @position INT
+SET @position = 1
+DECLARE @CharList TABLE (
+    Position INT,
+    UnicodeChar NVARCHAR(1),
+    UnicodeValue INT
+)
+WHILE @position <= DATALENGTH(@nstring)
+BEGIN
+    INSERT @CharList
+    SELECT @position as Position
+       ,CONVERT(nchar(1),SUBSTRING(@nstring, @position, 1)) as UnicodeChar
+       ,UNICODE(SUBSTRING(@nstring, @position, 1)) as UnicodeValue
+    SET @position = @position + 1
+END
+
+SELECT * FROM @CharList
+
